@@ -49,10 +49,29 @@ ES modules require `http://`, not `file://`, so use the server locally. The page
 itself makes no network calls — the only external request is the Google Fonts
 stylesheet, which degrades to system fonts if blocked.
 
+## Publishing a single file
+
+The site is normally served as separate files. To produce one self-contained
+HTML file — everything inlined, no external css/js — run:
+
+```sh
+node build.mjs [outfile]     # default: dist/growth-is-not-a-given.html
+```
+
+This is what a hosted copy is built from: strict content-security policies
+generally block external stylesheets and scripts, so `build.mjs` concatenates
+the three ES modules into one module scope, inlines the stylesheet, and emits
+page content without the `<html>/<head>/<body>` skeleton (hosts that wrap
+uploads supply their own). The Google Fonts `<link>` is kept — it is the one
+external host such policies commonly allow, and the type falls back to system
+faces if it is blocked. The script fails loudly if any skeleton tag or external
+`css/`/`js/` reference survives.
+
 ## Layout
 
 ```
 index.html        the narrative — every act, in order
+build.mjs         bundles the above into one self-contained file
 css/style.css     dark editorial theme + the scrollytelling layout
 js/data.js        every number on the site, each with its source
 js/charts.js      dependency-free SVG chart library
