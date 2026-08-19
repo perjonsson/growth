@@ -10,6 +10,9 @@ plus the prominent paper in this literature that was retracted.
 
 ## The argument
 
+The page is written for a general reader — roughly a 7-minute read, with the
+jargon removed and one diagram carrying the concept that prose cannot.
+
 1. **Growth is treated as a background constant.** World GDP per capita has more
    than tripled since 1960. But growth per head has been slowing for six decades
    — from 3.24% a year in the 1960s to under 2% since — so the trend is an
@@ -18,7 +21,8 @@ plus the prominent paper in this literature that was retracted.
    approach regresses country output on *local* temperature with time fixed
    effects. That control removes what is common to the whole world in a given
    year — which is exactly what global warming is. It yields ≈3% of world output
-   per permanent 1°C, not statistically significant.
+   per permanent 1°C, not statistically significant. This is the reveal the page
+   turns on, and the one idea it draws rather than describes.
 3. **Change the thermometer and the answer moves by a factor of seven.** Same
    data, same estimator, global mean temperature instead: a permanent 1°C rise
    lowers world GDP by **over 20%**, significant at the 5% level.
@@ -26,9 +30,10 @@ plus the prominent paper in this literature that was retracted.
    TFP and labour productivity all fall, and the effects *deepen* over time
    (TFP from −2% on impact to over −10% after four years). Disasters do not
    stimulate growth.
-5. **It has been running since 1960.** Warming has cut the annual world growth
-   rate by roughly a third of baseline by 2019; world GDP per capita would be
-   more than 20% higher today without it.
+5. **It has already happened.** Warming had cut roughly a third off the annual
+   world growth rate by 2019; world GDP per capita would be more than 20% higher
+   today without it. This is the turn the page builds to and closes on — a bill
+   already paid, not a projection.
 6. **The century ahead.** ~3°C by 2100 implies −53% GDP per capita (95% CI −29%
    to −77%), a 35% welfare loss rising to 56%, and a social cost of carbon of
    $1,207/t (CI $399–$2,015) against a conventional $185.
@@ -119,6 +124,11 @@ Bank path, phased in quadratically over 1960–2019. The chart note says this to
   or more series, and marks are direct-labelled.
 - `prefers-reduced-motion` disables the line-drawing animation, the strike-through
   and the step fades; all content stays fully visible.
+- Chart label gutters are measured from the rendered text rather than guessed,
+  so renaming a series cannot silently clip its label.
+- Scroll steps are chosen by which one has crossed a trigger line, not by a thin
+  IntersectionObserver band — a short card on a phone can scroll straight past a
+  narrow band and strand the chart on the wrong state.
 - Charts re-render at the container's real pixel size, and horizontal bar charts
   switch to a stacked-label layout below ~620px rather than shrinking their text.
   Verified with no horizontal overflow at 390px, 900px and 1440px.

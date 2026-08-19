@@ -69,49 +69,68 @@ const SCROLLIES = [
   }
 ];
 
-/* --- the scroll engine --------------------------------------------------- */
+/* --- the scroll engine ---------------------------------------------------
+   Rather than relying on a thin IntersectionObserver band — which short step
+   cards on a phone can skip straight past — each section picks its active step
+   directly: the last one whose top edge has crossed a trigger line. That gives
+   exactly one active step at any scroll position, and it never misses one.
+
+   The observer is still used, but only to switch each section's scroll work on
+   and off as it enters and leaves the viewport. */
+
+const sections = [];
 
 for (const cfg of SCROLLIES) {
   const section = document.getElementById(cfg.section);
   const chart = charts[cfg.chart];
   if (!section || !chart) continue;
-
   const steps = Array.from(section.querySelectorAll('.step'));
   if (!steps.length) continue;
 
-  let activeIndex = -1;
-  const activate = (i) => {
-    if (i === activeIndex || i < 0 || i >= steps.length) return;
-    activeIndex = i;
+  const entry = { section, chart, cfg, steps, index: -1, live: false };
+
+  entry.activate = (i) => {
+    i = Math.max(0, Math.min(steps.length - 1, i));
+    if (i === entry.index) return;
+    entry.index = i;
     steps.forEach((s, n) => s.classList.toggle('is-active', n === i));
     chart.update(cfg.read(steps[i].dataset));
   };
 
-  /* A thin band across the middle of the viewport: the step crossing it wins.
-     On narrow screens the graphic sits on top, so the band moves down. */
-  const band = () =>
-    window.innerWidth <= 900 ? '-58% 0px -37% 0px' : '-48% 0px -48% 0px';
-
-  let observer;
-  const observe = () => {
-    if (observer) observer.disconnect();
-    observer = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting) activate(steps.indexOf(e.target));
-      }
-    }, { rootMargin: band(), threshold: 0 });
-    steps.forEach((s) => observer.observe(s));
+  entry.sync = () => {
+    /* The pinned graphic sits above the prose on a narrow screen, so the
+       trigger line moves down to stay inside the reading column. */
+    const trigger = window.innerHeight * (window.innerWidth <= 900 ? 0.7 : 0.55);
+    let next = 0;
+    for (let i = 0; i < steps.length; i++) {
+      if (steps[i].getBoundingClientRect().top <= trigger) next = i;
+    }
+    entry.activate(next);
   };
-  observe();
 
-  let rt;
-  window.addEventListener('resize', () => {
-    clearTimeout(rt);
-    rt = setTimeout(observe, 200);
-  });
+  new IntersectionObserver((entries) => {
+    for (const e of entries) entry.live = e.isIntersecting;
+    if (entry.live) entry.sync();
+  }, { rootMargin: '10% 0px 10% 0px' }).observe(section);
 
-  /* Set the opening state without waiting for a scroll */
-  activate(0);
+  entry.activate(0);
+  sections.push(entry);
+}
+
+if (sections.length) {
+  let queued = false;
+  const sync = () => {
+    queued = false;
+    for (const s of sections) if (s.live) s.sync();
+  };
+  const onScroll = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(sync);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  sync();
 }
 
 /* Focus the decade bar chart on the slowdown when it scrolls into view */
@@ -144,6 +163,47 @@ if (bar) {
     requestAnimationFrame(update);
   }, { passive: true });
   update();
+}
+
+/* --- the takeaway, made portable ------------------------------------------
+   Clipboard access can be refused in a sandboxed frame, so fall back to
+   selecting the text and telling the reader which keys to press. */
+
+const copyBtn = document.getElementById('copyBtn');
+if (copyBtn) {
+  const label = copyBtn.textContent;
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+
+  const settle = (msg, ok) => {
+    copyBtn.textContent = msg;
+    copyBtn.classList.toggle('is-done', ok);
+    setTimeout(() => {
+      copyBtn.textContent = label;
+      copyBtn.classList.remove('is-done');
+    }, 2600);
+  };
+
+  copyBtn.addEventListener('click', async () => {
+    const payload = copyBtn.dataset.copy || '';
+    try {
+      await navigator.clipboard.writeText(payload);
+      settle('Copied', true);
+      return;
+    } catch { /* fall through to the manual path */ }
+
+    /* execCommand is deprecated but still the only fallback that works when
+       the async clipboard API is blocked by frame permissions. */
+    const ta = document.createElement('textarea');
+    ta.value = payload;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
+    ta.remove();
+    settle(ok ? 'Copied' : `Press ${mac ? '\u2318' : 'Ctrl'}+C`, ok);
+  });
 }
 
 /* --- sources ------------------------------------------------------------- */

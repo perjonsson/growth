@@ -117,6 +117,18 @@ section { position: relative; }
 }
 .hero__canvas { position: absolute; inset: 0; z-index: 0; opacity: 0.85; }
 .hero__canvas svg { width: 100%; height: 100%; display: block; }
+@media (max-width: 900px) {
+  .hero__canvas { opacity: 0.6; }
+  /* Scrim: the headline and lede must win over the ambient curve behind them */
+  .hero__canvas::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg,
+      var(--surface-0) 0%,
+      rgba(12, 12, 11, 0.88) 46%,
+      rgba(12, 12, 11, 0.45) 68%,
+      transparent 86%);
+  }
+}
 .hero__inner { position: relative; z-index: 1; align-self: center; }
 
 .hero__kicker {
@@ -228,8 +240,11 @@ section { position: relative; }
   .scrolly__graphic .legend { gap: 0.2rem 0.8rem; margin-bottom: 0.4rem; }
   .scrolly__graphic .legend li { font-size: 0.72rem; }
   .scrolly__steps { grid-column: 1; grid-row: 2; padding: 0; }
-  .step { min-height: auto; padding: 1.25rem 0; }
-  .step:first-child { padding-top: 0; }
+  /* Each step needs its own scroll moment: the pinned graphic takes the top of
+     the screen, so give the card enough room below it that roughly one card at
+     a time sits in the reading area. */
+  .step { min-height: 44svh; padding: 1rem 0; }
+  .step:first-child { padding-top: 0.25rem; }
   .step__card { opacity: 1; transform: none; }
 }
 
@@ -391,3 +406,83 @@ footer.colophon p { color: var(--text-muted); }
 @media (forced-colors: active) {
   .step__card, .stat, .compare__card, .caveat { border: 1px solid CanvasText; }
 }
+
+/* --------------------------------------------------------------------------
+   Mechanism diagram
+   Structure is drawn in currentColor so it follows the page ink; the accent
+   is reserved for the one quantity the figure is about — the shared warming.
+   -------------------------------------------------------------------------- */
+.diagram {
+  margin: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 1.5rem 1.5rem 1.25rem;
+  color: var(--text-secondary);
+}
+.diagram svg {
+  display: block;
+  width: 100%;
+  max-width: 27rem;
+  height: auto;
+  margin-inline: auto;
+}
+.diagram figcaption {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: 1.1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.dg-shared { fill: var(--series-2); }
+.dg-local  { fill: currentColor; opacity: 0.32; }
+.dg-base   { stroke: currentColor; opacity: 0.45; stroke-width: 1; }
+.dg-dash   { stroke: currentColor; opacity: 0.4; stroke-width: 1; stroke-dasharray: 4 3; }
+.dg-arrow  { stroke: currentColor; opacity: 0.6; stroke-width: 1.5; }
+.dg-head   { fill: var(--text-primary); font-family: var(--font-sans); font-size: 13px; font-weight: 600; }
+.dg-tick   { fill: var(--text-muted); font-family: var(--font-mono); font-size: 10.5px; }
+.dg-note   { fill: var(--text-muted); font-family: var(--font-sans); font-size: 11px; }
+.dg-op     { fill: var(--text-secondary); font-family: var(--font-sans); font-size: 12.5px; }
+.dg-punch  { fill: var(--series-2); font-family: var(--font-sans); font-size: 15px; font-weight: 650; }
+
+/* --------------------------------------------------------------------------
+   Takeaway — the one screen built to leave with the reader
+   -------------------------------------------------------------------------- */
+.takeaway {
+  padding: clamp(5rem, 14vh, 9rem) 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(217, 89, 38, 0.16), transparent 62%),
+    var(--surface-0);
+  border-block: 1px solid var(--rule);
+}
+.takeaway__inner { width: min(100% - 2.5rem, 46rem); margin-inline: auto; text-align: center; }
+.takeaway__eyebrow {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--series-2); margin-bottom: 1.75rem;
+}
+.takeaway__line {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 5.2vw, 3.1rem);
+  line-height: 1.2; letter-spacing: -0.025em;
+  text-wrap: balance; color: var(--text-primary);
+  margin: 0 0 1.6rem;
+}
+.takeaway__line .hl { color: var(--series-2); }
+.takeaway__sub {
+  font-size: 1rem; color: var(--text-secondary);
+  max-width: 40ch; margin: 0 auto 2.25rem; text-wrap: balance;
+}
+.takeaway__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.9rem; }
+.btn-copy {
+  font-family: var(--font-mono); font-size: 0.74rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-primary);
+  background: var(--surface-2); border: 1px solid var(--rule);
+  padding: 0.65rem 1.15rem; border-radius: 4px; cursor: pointer;
+  transition: border-color 160ms var(--ease), color 160ms var(--ease);
+}
+.btn-copy:hover { border-color: var(--series-2); }
+.btn-copy.is-done { color: var(--series-2); border-color: var(--series-2); }
+.takeaway__hint { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text-muted); }
+@media (prefers-reduced-motion: reduce) { .btn-copy { transition: none; } }

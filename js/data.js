@@ -62,7 +62,7 @@ DATA.gdpLevel = [
 ];
 
 /* ---------------------------------------------------------------------------
- * Bilal & Kanzig (2026), "The Macroeconomic Impact of Climate Change: Global
+ * Bilal & Känzig (2026), "The Macroeconomic Impact of Climate Change: Global
  * Versus Local Temperature", Quarterly Journal of Economics 141(2), 889-943.
  * All figures below are transcribed from the published article.
  * ------------------------------------------------------------------------- */
@@ -179,11 +179,11 @@ DATA.alreadyPaid = {
 
 /* Social cost of carbon, US$ per ton of CO2. */
 DATA.scc = [
-  { label: 'Rennert et al. (2022)', value: 185, kind: 'prior',
+  { label: 'What governments use today', value: 185, kind: 'prior',
     note: 'The high end of conventional estimates, and the basis for recent US regulatory values.' },
-  { label: 'Bilal & Kanzig, local temperature', value: 149, kind: 'prior',
+  { label: 'Same model, old thermometer', value: 149, kind: 'prior',
     note: 'The same structural model, re-estimated on local temperature. Not significant at the 5% level.' },
-  { label: 'Bilal & Kanzig, global temperature', value: 1207, lo: 399, hi: 2015, kind: 'headline',
+  { label: 'Same model, new thermometer', value: 1207, lo: 399, hi: 2015, kind: 'headline',
     note: 'Six times the high end of existing estimates. Even the bottom of the 95% band, $399, is more than double the conventional value.' }
 ];
 
@@ -191,36 +191,36 @@ DATA.scc = [
  * cut against the headline, and the paper that was retracted. */
 DATA.literature = [
   {
-    label: 'Conventional panel estimates',
-    detail: 'Permanent 1 degree C, world output',
+    label: 'The old consensus',
+    detail: 'One degree, permanently',
     value: -2, lo: -3, hi: -1,
     kind: 'low',
-    note: 'The pre-existing consensus that Bilal & Kanzig set out to overturn: a permanent 1 degree C rise lowers world output by 1-3%.'
+    note: 'The pre-existing consensus that Bilal & Känzig set out to overturn: a permanent 1 degree C rise lowers world output by 1-3%.'
   },
   {
     label: 'Burke, Hsiang & Miguel (2015)',
-    detail: 'Global average income, 2100, unmitigated',
+    detail: 'World income by 2100',
     value: -23,
     kind: 'mid',
     note: 'Nature. Productivity peaks at an annual average temperature of 13 degrees C and falls steeply above it. Widely cited, and widely contested.'
   },
   {
     label: 'Nath, Ramey & Klenow (2024)',
-    detail: 'Explicitly a middle position',
+    detail: 'A deliberate middle position',
     value: null,
     kind: 'mid',
     note: 'Finds warming has persistent but not permanent effects on growth. Their projections are 3-5x larger than level-effect estimates and 2-4x smaller than permanent-growth-effect estimates.'
   },
   {
     label: 'Kotz, Levermann & Wenz (2024)',
-    detail: 'World income by 2049 — RETRACTED',
+    detail: 'World income by 2049',
     value: -19, lo: -29, hi: -11,
     kind: 'retracted',
     note: 'Nature, April 2024. Retracted by the authors in December 2025 after critics found anomalies in the Uzbekistan data and understated uncertainty. The authors’ own reanalysis gives 17% rather than 19%, with a wider uncertainty range.'
   },
   {
-    label: 'Bilal & Kanzig (2026)',
-    detail: 'World GDP per capita, 2100, ~3 degrees C',
+    label: 'Bilal & Känzig (2026)',
+    detail: 'World income by 2100, about 3°C',
     value: -53, lo: -77, hi: -29,
     kind: 'headline',
     note: 'Quarterly Journal of Economics. The estimate this page is built around.'
@@ -242,14 +242,14 @@ DATA.insurance = {
 /* Benchmarks used to give the headline numbers a human scale. */
 DATA.benchmarks = [
   { label: 'US Great Depression', value: 'comparable in size',
-    note: 'Bilal & Kanzig describe their central 2100 loss as comparable to the economic losses caused by the 1929 Great Depression — but experienced permanently, not as a decade to recover from.' },
+    note: 'Bilal & Känzig describe their central 2100 loss as comparable to the economic losses caused by the 1929 Great Depression — but experienced permanently, not as a decade to recover from.' },
   { label: 'Moving to complete autarky', value: 'about one tenth as costly',
     note: 'The same loss is roughly ten times the cost of moving from today’s trade relations to complete autarky (Arkolakis, Costinot & Rodriguez-Clare 2012).' }
 ];
 
 /* Full citations. Rendered into the sources section. */
 DATA.sources = [
-  { id: 'bk', authors: 'Bilal, A. & Kanzig, D. R.', year: 2026,
+  { id: 'bk', authors: 'Bilal, A. & Känzig, D. R.', year: 2026,
     title: 'The Macroeconomic Impact of Climate Change: Global Versus Local Temperature',
     venue: 'Quarterly Journal of Economics 141(2), 889-943',
     url: 'https://academic.oup.com/qje/article/141/2/889/8490467',

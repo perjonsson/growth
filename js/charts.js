@@ -65,6 +65,17 @@ function linePath(pts) {
   return pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)},${p[1].toFixed(2)}`).join('');
 }
 
+/* Width of a label as it will actually render, so gutters fit the text rather
+   than a guess. Falls back to an estimate if the node cannot be measured. */
+function measureText(svg, str, cls) {
+  const t = el('text', { class: cls, x: -9999, y: -9999 }, svg);
+  t.textContent = str;
+  let w = 0;
+  try { w = t.getComputedTextLength(); } catch { w = 0; }
+  t.remove();
+  return w || str.length * 6.4;
+}
+
 /* Charts and prose should use the same minus sign, not a hyphen */
 const MINUS = '\u2212';
 const fmtPct = (v, dp = 0) => `${v < 0 ? MINUS : ''}${Math.abs(v).toFixed(dp)}%`;
@@ -312,8 +323,8 @@ export function growthBars(host, growth, opts = {}) {
   }
 
   const fig = makeFigure(host, {
-    title: 'World GDP per capita growth, decade averages',
-    subtitle: 'Annual %, constant 2015 US$',
+    title: 'How fast world income per person grew',
+    subtitle: 'Average per year, by decade',
     note: 'World Bank World Development Indicators, World aggregate. The 2020s average covers 2020–2024.',
     ratio: 0.6, maxHeight: 400, minHeight: 220, table: true,
     ariaLabel: 'Bar chart of world GDP per capita growth by decade, falling from 3.2% in the 1960s to under 2% since.'
@@ -376,13 +387,13 @@ export function growthBars(host, growth, opts = {}) {
 
 export function impulseChart(host, ir) {
   const fig = makeFigure(host, {
-    title: 'Effect of a 1°C global temperature shock on world GDP per capita',
-    subtitle: 'Cumulative % deviation, local projections',
+    title: 'What one hot year does to world income',
+    subtitle: 'Change in income per person, %, in the years afterwards',
     legend: [
       { label: 'Point estimate', color: 'var(--series-2)', shape: 'line' },
       { label: '95% confidence band', color: 'var(--series-2-band)', shape: 'band' }
     ],
-    note: 'Bilal & Känzig (2026), Figure III. Intermediate years are traced from the published impulse-response figure; the on-impact, six-year and peak values are the figures stated in the article.',
+    note: 'Bilal & Känzig (2026), Figure III. The years in between are traced from the published graph; the values on impact, at six years and at the peak are stated in the article itself.',
     ratio: 0.66, maxHeight: 400, minHeight: 230, table: true,
     ariaLabel: 'Chart showing world GDP per capita falling about 2 percent on impact after a 1 degree Celsius global temperature shock, deepening to a 14 percent loss by year six and not recovering by year ten.'
   });
@@ -508,12 +519,12 @@ export function impulseChart(host, ir) {
 export function localGlobalChart(host, rows) {
   const fig = makeFigure(host, {
     title: 'Same model, two thermometers',
-    subtitle: 'Effect of a permanent 1°C rise on world output, %',
+    subtitle: 'What one degree, permanently, costs world output',
     legend: [
       { label: 'Local (country) temperature', color: 'var(--series-1)' },
       { label: 'Global mean temperature', color: 'var(--series-2)' }
     ],
-    note: 'Bilal & Känzig (2026). The local-temperature estimate is not statistically significant at the 5% level; the global-temperature estimate is significant in years 2–8.',
+    note: 'Bilal & Känzig (2026). The local-temperature result is weak enough that it could be chance; the global-temperature result is not.',
     ratio: 0.56, maxHeight: 340, minHeight: 200, table: true,
     ariaLabel: 'Bar chart comparing a 3 percent output loss estimated from local temperature with a 20 percent loss estimated from global temperature.'
   });
@@ -576,9 +587,9 @@ export function localGlobalChart(host, rows) {
 
 export function transmissionChart(host, rows) {
   const fig = makeFigure(host, {
-    title: 'Where the loss shows up',
-    subtitle: 'Response to a 1°C global temperature shock, % — on impact vs four years later',
-    note: 'Bilal & Känzig (2026), Figure X, Penn World Table sample 1960–2019. Values other than the stated TFP path are read from the published figure.',
+    title: 'Where the damage lands',
+    subtitle: 'Change after one degree of warming, %: right away, and four years later',
+    note: 'Bilal & Känzig (2026), Figure X, 1960–2019. Apart from the productivity path, which the article states, these values are read from the published graph.',
     ratio: 0.66, maxHeight: 380, minHeight: 240, table: true,
     ariaLabel: 'Chart showing total factor productivity, labour productivity, capital and investment all falling further four years after a temperature shock than on impact.'
   });
@@ -590,7 +601,9 @@ export function transmissionChart(host, rows) {
        marked on it, so the form changes rather than the labels shrinking. */
     const compact = w < 660;
     if (compact) return drawBars();
-    const m = { t: 34, r: 224, b: 30, l: 44 };
+    const rightGutter = Math.max(...rows.map((r) =>
+      measureText(svg, `${r.label}  ${fmtPct(r.atFour, 0)}`, 'c-annot'))) + 24;
+    const m = { t: 34, r: Math.min(w * 0.42, rightGutter), b: 30, l: 44 };
     const y = scale(1, -15, m.t, h - m.b);
     const xa = m.l + 10, xb = w - m.r;
 
@@ -598,7 +611,7 @@ export function transmissionChart(host, rows) {
       el('line', { x1: m.l, x2: xb, y1: y(v), y2: y(v), class: v === 0 ? 'c-zero' : 'c-grid' }, svg);
       text(svg, m.l - 7, y(v) + 3.5, fmtPct(v), 'c-tick', { 'text-anchor': 'end' });
     }
-    text(svg, xa, m.t - 14, 'On impact', 'c-axis-label', { 'text-anchor': 'middle' });
+    text(svg, xa, m.t - 14, 'Right away', 'c-axis-label', { 'text-anchor': 'middle' });
     text(svg, xb, m.t - 14, 'After 4 years', 'c-axis-label', { 'text-anchor': 'middle' });
 
     const labels = [];
@@ -682,7 +695,7 @@ export function transmissionChart(host, rows) {
 export function counterfactualChart(host, level, gapPct) {
   const fig = makeFigure(host, {
     title: 'The bill already paid',
-    subtitle: 'World GDP per capita, constant 2015 US$',
+    subtitle: 'Income per person worldwide, in 2015 dollars',
     legend: [
       { label: 'Observed', color: 'var(--series-1)', shape: 'line' },
       { label: 'Without 1960–2019 warming', color: 'var(--series-2)', shape: 'dash' }
@@ -774,8 +787,8 @@ export function literatureChart(host, rows) {
   const items = rows.filter((r) => r.value !== null);
   const fig = makeFigure(host, {
     title: 'The range of the evidence',
-    subtitle: 'Estimated loss, % (note: the studies measure different things — see the note below)',
-    note: 'Not a like-for-like comparison: the conventional panel figure is the effect of a permanent 1°C, Burke et al. and Bilal & Känzig are end-of-century projections under unmitigated warming, and Kotz et al. is a 2049 commitment. Bars show central estimates; whiskers show the reported ranges.',
+    subtitle: 'Estimated loss, %. Each study measures something slightly different — see below',
+    note: 'Not a like-for-like comparison. The old consensus figure is the cost of one permanent degree; Burke et al. and Bilal & Känzig are end-of-century projections if warming goes unchecked; Kotz et al. is a 2049 figure. Bars are central estimates, whiskers the reported ranges.',
     ratio: 0.8, maxHeight: 420, minHeight: 300, table: true,
     ariaLabel: 'Horizontal bar chart of climate damage estimates ranging from 2 percent for conventional panel studies to 53 percent for Bilal and Kanzig.'
   });
@@ -785,7 +798,11 @@ export function literatureChart(host, rows) {
     /* Below ~620px there is no room for a label gutter wide enough for study
        names, so the labels move above their bars and the plot goes full width. */
     const stacked = w < 620;
-    const m = { t: 16, r: stacked ? 30 : 62, b: 30, l: stacked ? 16 : Math.min(190, w * 0.42) };
+    const gutter = Math.max(...items.flatMap((r) => [
+      measureText(svg, r.label, 'c-annot c-annot--strong'),
+      measureText(svg, r.kind === 'retracted' ? 'RETRACTED 2025' : r.detail, 'c-annot')
+    ])) + 18;
+    const m = { t: 16, r: stacked ? 30 : 62, b: 30, l: stacked ? 16 : Math.min(w * 0.5, gutter) };
     const x = scale(0, -80, m.l, w - m.r);
     const bandH = (h - m.t - m.b) / items.length;
     const barH = Math.min(24, stacked ? bandH * 0.3 : bandH * 0.5);
@@ -854,7 +871,7 @@ export function literatureChart(host, rows) {
 export function sccChart(host, rows) {
   const fig = makeFigure(host, {
     title: 'What a ton of CO₂ costs',
-    subtitle: 'Social cost of carbon, US$ per ton of CO₂',
+    subtitle: 'US$ per ton — the number carbon taxes are set from',
     note: 'Bilal & Känzig (2026); Rennert et al. (2022). The whisker on the headline estimate is its 95% confidence interval, $399–$2,015.',
     ratio: 0.55, maxHeight: 320, minHeight: 220, table: true,
     ariaLabel: 'Bar chart comparing a social cost of carbon of 149 and 185 dollars per ton with a headline estimate of 1,207 dollars.'
@@ -865,7 +882,9 @@ export function sccChart(host, rows) {
   function draw() {
     const { svg, w, h } = fig.frame();
     const stacked = w < 620;
-    const m = { t: 14, r: stacked ? 30 : 74, b: 26, l: stacked ? 16 : Math.min(210, w * 0.44) };
+    const gutter = Math.max(...rows.map((r) =>
+      measureText(svg, r.label, 'c-annot' + (r.kind === 'headline' ? ' c-annot--strong' : '')))) + 18;
+    const m = { t: 14, r: stacked ? 30 : 74, b: 26, l: stacked ? 16 : Math.min(w * 0.5, gutter) };
     const x = scale(0, 2100, m.l, w - m.r);
     const bandH = (h - m.t - m.b) / rows.length;
     const barH = Math.min(26, stacked ? bandH * 0.26 : bandH * 0.46);
@@ -927,7 +946,10 @@ export function heroBackdrop(host, data) {
     const svg = el('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}`, 'aria-hidden': 'true', focusable: 'false' }, host);
 
     const x = scale(1880, 2025, -20, w + 20);
-    const y = scale(-0.4, 1.7, h * 0.98, h * 0.30);
+    /* On a phone the copy runs most of the way down the screen, so the curve
+       is pushed into the lower band where it cannot cross the text. */
+    const top = w < 900 ? 0.62 : 0.30;
+    const y = scale(-0.4, 1.7, h * 0.98, h * top);
     const pts = data.map((d) => [x(d[0]), y(d[1])]);
 
     const grad = el('linearGradient', { id: 'heroFade', x1: '0', y1: '0', x2: '0', y2: '1' }, el('defs', {}, svg));
