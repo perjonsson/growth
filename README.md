@@ -11,7 +11,19 @@ plus the prominent paper in this literature that was retracted.
 ## The argument
 
 The page is written for a general reader — roughly a 7-minute read, with the
-jargon removed and one diagram carrying the concept that prose cannot.
+jargon removed and four hand-drawn figures carrying what prose cannot.
+
+Three of those figures exist to make an abstract number land in the body rather
+than the head, because that is what people actually remember:
+
+| Figure | The number it makes physical |
+|---|---|
+| A clinical thermometer at 37.0°C and 38.4°C | 1.4°C sounds like nothing; as a fever it is the gap between working and going to bed |
+| Wheat beside a cracked tractor | the difference between losing one year's output and losing the thing that makes every future year's |
+| A working week with Friday struck out | 20% of world income is one whole day in five |
+
+The fourth is the mechanism diagram: country temperature bars, the world average
+subtracted, and only local weather left standing.
 
 1. **Growth is treated as a background constant.** World GDP per capita has more
    than tripled since 1960. But growth per head has been slowing for six decades
@@ -126,6 +138,9 @@ Bank path, phased in quadratically over 1960–2019. The chart note says this to
   and the step fades; all content stays fully visible.
 - Chart label gutters are measured from the rendered text rather than guessed,
   so renaming a series cannot silently clip its label.
+- Illustrations are hand-authored inline SVG in `currentColor`, with the accent
+  spent only on what has been lost — the fever, the crack, the missing day. No
+  raster assets, so nothing to load and nothing to license.
 - Scroll steps are chosen by which one has crossed a trigger line, not by a thin
   IntersectionObserver band — a short card on a phone can scroll straight past a
   narrow band and strand the chart on the wrong state.

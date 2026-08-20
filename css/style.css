@@ -486,3 +486,57 @@ footer.colophon p { color: var(--text-muted); }
 .btn-copy.is-done { color: var(--series-2); border-color: var(--series-2); }
 .takeaway__hint { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.08em; color: var(--text-muted); }
 @media (prefers-reduced-motion: reduce) { .btn-copy { transition: none; } }
+
+/* --------------------------------------------------------------------------
+   Editorial illustrations
+   Line art in currentColor so it tracks the page ink; the accent is spent only
+   on the thing that has been lost — the fever, the crack, the missing day.
+   -------------------------------------------------------------------------- */
+.illus {
+  margin: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 1.75rem 1.5rem 1.35rem;
+  color: var(--text-secondary);
+}
+.illus svg { display: block; width: 100%; max-width: 34rem; height: auto; margin-inline: auto; }
+.illus figcaption {
+  font-size: 0.94rem; color: var(--text-secondary); line-height: 1.6;
+  max-width: 34rem; margin: 1.35rem auto 0;
+  padding-top: 1.2rem; border-top: 1px solid var(--rule);
+}
+.illus figcaption strong { color: var(--series-2); }
+
+/* Shared illustration marks */
+.il-stroke { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: 0.75; }
+.il-fill   { fill: currentColor; opacity: 0.4; }
+.il-ground { stroke: currentColor; opacity: 0.32; stroke-width: 2; stroke-linecap: round; }
+.il-divide { stroke: currentColor; opacity: 0.18; stroke-width: 1; }
+.il-crack  { fill: none; stroke: var(--series-2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.il-head   { fill: var(--text-primary); font-family: var(--font-sans); font-size: 14px; font-weight: 650; }
+.il-sub    { fill: var(--text-muted); font-family: var(--font-sans); font-size: 12.5px; }
+.il-sub--hot { fill: var(--series-2); }
+.il-cap    { fill: var(--text-muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; }
+.il-cap--hot { fill: var(--series-2); }
+.il-note   { fill: var(--text-muted); font-family: var(--font-sans); font-size: 12px; }
+
+/* Thermometer */
+.il-glass { fill: none; stroke: currentColor; stroke-width: 2; opacity: 0.42; }
+.il-merc  { fill: var(--series-2); }
+.il-tick  { stroke: currentColor; opacity: 0.45; stroke-width: 1.5; }
+.il-tick--hot { stroke: var(--series-2); opacity: 1; }
+.il-val   { fill: var(--text-primary); font-family: var(--font-mono); font-size: 15px; font-weight: 500; }
+.il-val--hot { fill: var(--series-2); }
+.il-brace { fill: none; stroke: currentColor; opacity: 0.3; stroke-width: 1.5; }
+
+/* Working week */
+.il-day { fill: currentColor; opacity: 0.24; }
+.il-day--gone {
+  fill: none; opacity: 1;
+  stroke: var(--series-2); stroke-width: 2; stroke-dasharray: 6 5;
+}
+.il-gone { fill: var(--series-2); font-family: var(--font-sans); font-size: 13px; font-weight: 600; }
+
+/* A chapter that exists to hold one figure needs less air above it */
+.chapter--tight { padding-top: 0; }
