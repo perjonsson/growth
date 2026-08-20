@@ -174,7 +174,11 @@ DATA.scenario2100 = {
 /* Warming that has already happened: 1960-2019 counterfactual. */
 DATA.alreadyPaid = {
   growthRateReduction: 'one third of baseline by 2019',
-  gdpGapToday: 20
+  gdpGap: 20,
+  /* The paper's samples both end in 2019 — the binding constraint is the ISIMIP
+     observed-climate data, which runs 1901-2019. The 20% gap is therefore the
+     gap as of 2019, not as of the last year of the observed GDP series. */
+  gapAnchorYear: 2019
 };
 
 /* Social cost of carbon, US$ per ton of CO2. */

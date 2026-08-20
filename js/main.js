@@ -40,7 +40,7 @@ mount('chartTemp', (h) => temperatureChart(h, DATA.temperature, { revealYear: 19
 mount('chartLocal', (h) => localGlobalChart(h, DATA.localVsGlobal));
 mount('chartIR', (h) => impulseChart(h, DATA.impulseResponse));
 mount('chartTransmission', (h) => transmissionChart(h, DATA.transmission));
-mount('chartCF', (h) => counterfactualChart(h, DATA.gdpLevel, DATA.alreadyPaid.gdpGapToday));
+mount('chartCF', (h) => counterfactualChart(h, DATA.gdpLevel, DATA.alreadyPaid.gdpGap, DATA.alreadyPaid.gapAnchorYear));
 mount('chartLit', (h) => literatureChart(h, DATA.literature));
 mount('chartSCC', (h) => sccChart(h, DATA.scc));
 

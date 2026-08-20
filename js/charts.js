@@ -692,7 +692,7 @@ export function transmissionChart(host, rows) {
    the warming of 1960–2019. Two series, both labelled directly.
    =========================================================================== */
 
-export function counterfactualChart(host, level, gapPct) {
+export function counterfactualChart(host, level, gapPct, anchorYear) {
   const fig = makeFigure(host, {
     title: 'The bill already paid',
     subtitle: 'Income per person worldwide, in 2015 dollars',
@@ -700,16 +700,21 @@ export function counterfactualChart(host, level, gapPct) {
       { label: 'Observed', color: 'var(--series-1)', shape: 'line' },
       { label: 'Without 1960–2019 warming', color: 'var(--series-2)', shape: 'dash' }
     ],
-    note: 'Observed series: World Bank. The counterfactual applies the Bilal & Känzig (2026) finding that world GDP per capita would be more than 20% higher today had no warming occurred between 1960 and 2019, phased in over the period.',
+    note: 'Observed series: World Bank. The counterfactual applies the Bilal & Känzig (2026) finding that world GDP per capita would be more than 20% higher had no warming occurred between 1960 and 2019, phased in over that period. The paper\u2019s data ends in 2019, so the gap is held flat after it rather than extrapolated \u2014 warming continued, so this understates rather than overstates the wedge.',
     ratio: 0.6, maxHeight: 380, minHeight: 220, table: true,
-    ariaLabel: 'Two lines showing observed world GDP per capita reaching about 11,900 dollars in 2024 against a counterfactual without warming that reaches about 14,300 dollars.'
+    ariaLabel: 'Two lines showing observed world GDP per capita reaching about 11,900 dollars in 2024 against a counterfactual without warming about 20 per cent higher. The counterfactual is estimated to 2019 and carried forward flat after that.'
   });
 
   let showCounter = false;
   const y0 = level[0][0], y1 = level[level.length - 1][0];
+
+  /* The estimate is anchored to the end of the paper's sample, not to the end
+     of the observed series. The gap is phased in quadratically to that year —
+     damages accumulate with the warming — and then held flat in proportional
+     terms, because there is no published estimate for the years after it.
+     Warming did not stop in 2019, so holding it flat understates the gap. */
   const counter = level.map(([yr, v]) => {
-    const frac = Math.min(1, Math.max(0, (yr - y0) / (y1 - y0)));
-    /* Damages accumulate with the warming, so phase the gap in quadratically */
+    const frac = Math.min(1, Math.max(0, (yr - y0) / (anchorYear - y0)));
     return [yr, v * (1 + (gapPct / 100) * frac * frac)];
   });
 
@@ -735,11 +740,29 @@ export function counterfactualChart(host, level, gapPct) {
         d: smoothPath(top) + 'L' + bot.map((p) => `${p[0].toFixed(2)},${p[1].toFixed(2)}`).join('L') + 'Z',
         fill: 'var(--series-2-band)', stroke: 'none'
       }, svg);
+
+      /* Estimated stretch solid-dashed; the carried-forward years faded, so the
+         chart never implies the estimate covers more than it does. */
+      const est = counter.filter(([yr]) => yr <= anchorYear);
+      const fwd = counter.filter(([yr]) => yr >= anchorYear);
       el('path', {
-        d: smoothPath(counter.map(([yr, v]) => [x(yr), y(v)])),
+        d: smoothPath(est.map(([yr, v]) => [x(yr), y(v)])),
         fill: 'none', stroke: 'var(--series-2)', 'stroke-width': 2,
         'stroke-dasharray': '6 4', 'stroke-linecap': 'round'
       }, svg);
+      if (fwd.length > 1) {
+        el('path', {
+          d: smoothPath(fwd.map(([yr, v]) => [x(yr), y(v)])),
+          fill: 'none', stroke: 'var(--series-2)', 'stroke-width': 2,
+          'stroke-dasharray': '2 4', 'stroke-linecap': 'round', opacity: 0.5
+        }, svg);
+        el('line', {
+          x1: x(anchorYear), x2: x(anchorYear), y1: m.t, y2: h - m.b,
+          stroke: 'var(--axis)', 'stroke-dasharray': '3 3'
+        }, svg);
+        text(svg, x(anchorYear) - 8, m.t + 10, `estimate ends ${anchorYear}`, 'c-annot', { 'text-anchor': 'end' });
+      }
+
       const c = counter[counter.length - 1];
       text(svg, x(c[0]) + 8, y(c[1]) + 2, `$${Math.round(c[1]).toLocaleString('en-US')}`, 'c-value');
       text(svg, x(c[0]) + 8, y(c[1]) + 17, 'no warming', 'c-annot');
@@ -769,9 +792,14 @@ export function counterfactualChart(host, level, gapPct) {
     hit.addEventListener('pointerleave', () => { cross.setAttribute('opacity', 0); fig.hideTip(); });
   }
 
-  fig.renderTable(['Year', 'Observed $', 'No-warming counterfactual $'],
+  fig.renderTable(['Year', 'Observed $', 'No-warming $', 'Basis'],
     level.filter(([yr]) => yr % 5 === 0 || yr === y1)
-      .map(([yr, v], i, arr) => [yr, Math.round(v).toLocaleString('en-US'), Math.round(counter.find((c) => c[0] === yr)[1]).toLocaleString('en-US')]));
+      .map(([yr, v]) => [
+        yr,
+        Math.round(v).toLocaleString('en-US'),
+        Math.round(counter.find((c) => c[0] === yr)[1]).toLocaleString('en-US'),
+        yr <= anchorYear ? 'estimated' : 'carried forward'
+      ]));
   draw(); fig.onResize(draw);
 
   return { update(s = {}) { if (s.showCounter !== undefined && s.showCounter !== showCounter) { showCounter = s.showCounter; draw(); } } };

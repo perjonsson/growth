@@ -113,8 +113,16 @@ series — the chart note says so, and the values the paper states in words are
 flagged `quoted: true` in `js/data.js`.
 
 The counterfactual in "The bill already paid" is a construction, not a published
-series: it applies the paper's stated >20% present-day gap to the observed World
-Bank path, phased in quadratically over 1960–2019. The chart note says this too.
+series. It applies the paper's stated >20% gap to the observed World Bank path,
+phased in quadratically to **2019** — the end of both of the paper's samples,
+bounded by the ISIMIP observed-climate data, which runs 1901–2019.
+
+After 2019 the proportional gap is **held flat rather than extrapolated**, the
+chart marks where the estimate stops, and the years past it are drawn in a
+lighter dash and labelled `carried forward` in the data table. Warming did not
+stop in 2019, so holding the gap flat understates rather than overstates the
+wedge. The page's copy says "between 1960 and 2019" rather than "today" for the
+same reason.
 
 ## Sources
 
